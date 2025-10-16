@@ -2,6 +2,7 @@ const input = document.getElementById('input') as HTMLInputElement
 const searchBtn = document.getElementById('search-btn') as HTMLButtonElement
 let definitionTitle = document.getElementById('definition-title') as HTMLHeadingElement
 let definitionPara = document.getElementById('definition-para') as HTMLParagraphElement
+let meaningUl = document.getElementById('meanings-list') as HTMLUListElement
 const url: string = '/api/dictionary/'
 
 interface DictionaryEntry {
@@ -34,18 +35,29 @@ function capitalizeFirstLetter(word: string) {
 }
 
 async function getWord(){
+
 const inputWord = input.value.trim().toLowerCase()
+
+try{
+
 const response = await fetch(`${url}${inputWord}`)
 const data: DictionaryEntry[] = await response.json()
-console.log(data[0].meta.id);
 input.value = ''
+definitionTitle.innerHTML = ''
+meaningUl.innerHTML = ''
+
 renderWord(data)
-}
+
+} catch {
+  alert('Try again...')
+}}
 
 function renderWord(data: DictionaryEntry[]) {
   definitionTitle.innerHTML = capitalizeFirstLetter(data[0]?.hwi.hw) 
 
-  definitionPara.innerHTML = `• ${capitalizeFirstLetter(data[0]?.shortdef[0])}`
+  data[0]?.shortdef.forEach(def => {
+   meaningUl.innerHTML += `<li class='word-meaning'>${def}</li>`
+  })
 }
 
 searchBtn.addEventListener('click', getWord)
